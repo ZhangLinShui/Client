@@ -10,21 +10,19 @@ namespace Client
     class Program{
         static void Main(string[] args){
             Console.WriteLine("Press ESC to exit...");
-            while (true){
-                ConsoleKey InputKey;//若有键按下，且是 ESC 键，则度退出循环
-                if (Console.KeyAvailable){
-                    InputKey = Console.ReadKey(true).Key;
-                    if (InputKey == ConsoleKey.Escape) break;
-                    if (InputKey == ConsoleKey.Spacebar){
-                        List<Task> t = new List<Task>();
-                        for (int i = 0; i < 9000; i++){
-                            t.Add(Task.Factory.StartNew(() =>{
-                               AddProducts();
-                           }));
-                        }
-                        Task.WaitAll(t.ToArray());
-                        Console.WriteLine("客户端当前线程ID：" + Thread.CurrentThread.ManagedThreadId.ToString());
+            while (true){//若有键按下，且是 ESC 键，则度退出循环
+                ConsoleKey InputKey = Console.ReadKey(true).Key;
+                if (InputKey == ConsoleKey.Escape) break;
+                if (InputKey == ConsoleKey.Spacebar){
+                    Console.WriteLine("按下空格键");
+                    List<Task> t = new List<Task>();
+                    for (int i = 0; i < 10000; i++){
+                        t.Add(Task.Factory.StartNew(() =>{
+                            AddProducts();
+                        }));
                     }
+                    //Task.WaitAll(t.ToArray());
+                    Console.WriteLine("客户端当前线程ID：" + Thread.CurrentThread.ManagedThreadId.ToString());
                 }
             }
         }
