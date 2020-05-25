@@ -7,32 +7,36 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class Program{
-        static void Main(string[] args){
+    class Program
+    {
+        static void Main(string[] args)
+        {
             Console.WriteLine("Press ESC to exit...");
-            while (true){//若有键按下，且是 ESC 键，则度退出循环
+            while (true)
+            {//若有键按下，且是 ESC 键，则度退出循环
                 ConsoleKey InputKey = Console.ReadKey(true).Key;
                 if (InputKey == ConsoleKey.Escape) break;
-                if (InputKey == ConsoleKey.Spacebar){
-                    Console.WriteLine("按下空格键");
+                if (InputKey == ConsoleKey.Spacebar)
+                {
                     List<Task> t = new List<Task>();
-                    for (int i = 0; i < 10000; i++){
+                    for (int i = 0; i < 10; i++)
+                    {
+                        SocketManager socketManager = new SocketManager("127.0.0.1", 11000);
+                        socketManager.Connect();
                         t.Add(Task.Factory.StartNew(() =>{
-                            AddProducts();
+                            AddProducts(socketManager);
                         }));
                     }
-                    //Task.WaitAll(t.ToArray());
+                    Task.WaitAll(t.ToArray());
                     Console.WriteLine("客户端当前线程ID：" + Thread.CurrentThread.ManagedThreadId.ToString());
                 }
             }
         }
-        static void AddProducts(){
-            SocketManager socketManager = new SocketManager("127.0.0.1", 11000);
-            if (socketManager.Connect() == SocketError.Success){
-                byte[] send = System.Text.Encoding.UTF8.GetBytes("你好啊");
-                socketManager.Send(send);
-            }
-            Console.WriteLine("客户端当前线程ID：" + Thread.CurrentThread.ManagedThreadId.ToString());
+        static string message = @"Hello World!";
+        static void AddProducts(SocketManager socketManager)
+        {
+            byte[] send = System.Text.Encoding.UTF8.GetBytes(message);
+            socketManager.Send(send);
         }
         static void AddProducts1()
         {
@@ -52,7 +56,7 @@ namespace Client
                         {
 
                             byte[] send = System.Text.Encoding.UTF8.GetBytes("你好啊");
-                            socketManager.Send(send);
+                            //socketManager.Send(send);
                         }
                     }
                 }

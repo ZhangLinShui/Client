@@ -60,7 +60,7 @@ namespace Plates.Client.Net
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
 
-           // hostEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            // hostEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
             hostEndPoint = remoteEP;
             clientSocket = new Socket(hostEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             m_bufferManager = new BufferManager(BuffSize * 2, BuffSize);
@@ -79,16 +79,11 @@ namespace Plates.Client.Net
             connectArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnConnect);
 
             clientSocket.ConnectAsync(connectArgs);
-            autoConnectEvent.WaitOne(); //阻塞. 让程序在这里等待,直到连接响应后再返回连接结果  
+            
+            autoConnectEvent.WaitOne(); //阻塞. 让程序在这里等待,直到连接响应后再返回连接结果
+            Console.WriteLine("发送数据");
             return connectArgs.SocketError;
         }
-
-        /// Disconnect from the host.  
-        internal void Disconnect()
-        {
-            clientSocket.Disconnect(false);
-        }
-
         // Calback for connect operation  
         private void OnConnect(object sender, SocketAsyncEventArgs e)
         {
@@ -100,7 +95,11 @@ namespace Plates.Client.Net
             if (connected)
                 initArgs(e);
         }
-
+        /// Disconnect from the host. 
+        internal void Disconnect()
+        {
+            clientSocket.Disconnect(false);
+        }
 
         #region args  
 
@@ -235,6 +234,7 @@ namespace Plates.Client.Net
         // <param name="e"></param>  
         private void ProcessSend(SocketAsyncEventArgs e)
         {
+            Console.WriteLine("关闭连接");
             if (e.SocketError != SocketError.Success)
             {
                 ProcessError(e);
@@ -288,7 +288,7 @@ namespace Plates.Client.Net
                 byte[] buff = new byte[sendBuffer.Length + 4];
                 Array.Copy(BitConverter.GetBytes(sendBuffer.Length), buff, 4);
                 Array.Copy(sendBuffer, 0, buff, 4, sendBuffer.Length);
-                //查找有没有空闲的发送MySocketEventArgs,有就直接拿来用,没有就创建新的.So easy!  
+                //查找有没有空闲的发送MySocketEventArgs,有就直接拿来用,没有就创建新的.So easy! 
                 MySocketEventArgs sendArgs = listArgs.Find(a => a.IsUsing == false);
                 if (sendArgs == null)
                 {
@@ -300,11 +300,12 @@ namespace Plates.Client.Net
                     sendArgs.SetBuffer(buff, 0, buff.Length);
                 }
                 clientSocket.SendAsync(sendArgs);
+                //Console.WriteLine("发送的数据");
             }
-            else
-            {
-                throw new SocketException((Int32)SocketError.NotConnected);
-            }
+            //else
+            //{
+            //    throw new SocketException((Int32)SocketError.NotConnected);
+            //}
         }
 
         /// <summary>  
