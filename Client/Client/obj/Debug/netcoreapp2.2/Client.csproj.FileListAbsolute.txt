@@ -1,0 +1,11 @@
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\Debug\netcoreapp2.2\Client.csprojAssemblyReference.cache
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\Debug\netcoreapp2.2\Client.csproj.CoreCompileInputs.cache
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\Debug\netcoreapp2.2\Client.AssemblyInfoInputs.cache
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\Debug\netcoreapp2.2\Client.AssemblyInfo.cs
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\bin\Debug\netcoreapp2.2\Client.deps.json
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\bin\Debug\netcoreapp2.2\Client.runtimeconfig.json
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\bin\Debug\netcoreapp2.2\Client.runtimeconfig.dev.json
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\bin\Debug\netcoreapp2.2\Client.dll
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\bin\Debug\netcoreapp2.2\Client.pdb
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\Debug\netcoreapp2.2\Client.dll
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\Debug\netcoreapp2.2\Client.pdb

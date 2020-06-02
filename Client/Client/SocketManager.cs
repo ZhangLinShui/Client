@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,7 +81,6 @@ namespace Plates.Client.Net
             connectArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnConnect);
 
             clientSocket.ConnectAsync(connectArgs);
-            
             autoConnectEvent.WaitOne(); //阻塞. 让程序在这里等待,直到连接响应后再返回连接结果
             Console.WriteLine("发送数据");
             return connectArgs.SocketError;
@@ -280,11 +281,13 @@ namespace Plates.Client.Net
         }
 
         // Exchange a message with the host.  
-        internal void Send(byte[] sendBuffer)
+        internal void Send(IMessage message)
         {
             if (connected)
             {
                 //先对数据进行包装,就是把包的大小作为头加入,这必须与服务器端的协议保持一致,否则造成服务器无法处理数据.  
+                byte[] sendBuffer = message.ToByteArray();
+                Console.WriteLine(sendBuffer.Length);
                 byte[] buff = new byte[sendBuffer.Length + 4];
                 Array.Copy(BitConverter.GetBytes(sendBuffer.Length), buff, 4);
                 Array.Copy(sendBuffer, 0, buff, 4, sendBuffer.Length);
@@ -299,8 +302,20 @@ namespace Plates.Client.Net
                     sendArgs.IsUsing = true;
                     sendArgs.SetBuffer(buff, 0, buff.Length);
                 }
-                clientSocket.SendAsync(sendArgs);
-                //Console.WriteLine("发送的数据");
+                bool willRaiseEvent = clientSocket.SendAsync(sendArgs);
+                if (!willRaiseEvent)//当消息量小时 很可能会立即发送完毕 此时不会触发发送回调 必须要立即判断
+                {
+                    ProcessSend(sendArgs);
+                }
+                #region 测试protobuf 反序列化
+                //byte[] buff1 = new byte[sendBuffer.Length];
+                //Array.Copy(sendBuffer, 0, buff1, 0, 30);
+                //CodedInputStream codedInputStream = new CodedInputStream(buff1);
+                //int aaa = 1;
+                //uint aaa1 = codedInputStream.ReadRawVarint32(ref aaa);
+                //Person person = Person.Parser.ParseFrom(sendBuffer);
+                //Console.WriteLine(person.Aliases);
+                #endregion
             }
             //else
             //{

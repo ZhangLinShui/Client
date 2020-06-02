@@ -1,0 +1,278 @@
+syntax = "proto3";
+package xiuxian.zhangmen.road;
+
+//约定
+//1. 消息结构中的字段串字段使用utf-8编码
+//2. 客户端上行和服务器下行消息必须有command字段
+//3. result字段非RESULT_SUCCESS表示失败，失败时需设置error字段（仅失败时设置），失败时不设置body字段
+//4. 服务端主动下发的消息一般不设置result和error字段
+//5. 如接口说明与约定冲突，以接口说明为准
+
+enum Command {
+	CMD_HEARTBEAT = 0;              //心跳
+	CMD_LOGIN = 1;                  //登录
+	CMD_LOGOUT = 2;                 //登出
+	CMD_KICK_OFF = 3;               //通知客户端被踢出
+	CMD_CHEAT_REPORT = 4;           //作弊报告
+	CMD_GET_PROP = 100001;          //获取道具
+	CMD_SAVE_PROP = 100002;         //保存道具
+	CMD_GET_GJG = 100003;           //获取庚金谷
+	CMD_SAVE_GJG = 100004;          //保存庚金谷
+	CMD_GET_YY = 100005;            //获取药园
+	CMD_SAVE_YY = 100006;           //保存药园
+	CMD_GET_LDF = 100007;           //获取炼丹房
+	CMD_SAVE_LDF = 100008;          //保存炼丹房
+	CMD_GET_LQF = 100009;           //获取炼器房
+	CMD_SAVE_LQF = 100010;          //保存炼器房
+	CMD_GET_MAIN_HALL = 100011;     //获取正殿
+	CMD_SAVE_MAIN_HALL = 100012;    //保存正殿
+	CMD_GET_RECRUIT_HALL = 100013;  //获取招募建筑
+	CMD_SAVE_RECRUIT_HALL = 100014; //保存招募建筑
+	CMD_GET_JVLING_HALL = 100015;   //获取聚灵阵
+	CMD_SAVE_JVLING_HALL = 100016;  //保存聚灵阵
+	CMD_GET_HUSHAN_HALL = 100017;   //获取护山大阵
+	CMD_SAVE_HUSHAN_HALL = 100018;  //保存护山大阵
+	CMD_GET_STORE_HOUSE = 100019;   //获取仓库
+	CMD_SAVE_STORE_HOUSE = 100020;  //保存仓库
+	CMD_GET_JZH = 100021;           //获取芥子环
+	CMD_SAVE_JZH = 100022;          //保存芥子环
+	CMD_GET_ROLE = 100023;          //获取弟子
+	CMD_SAVE_ROLE_DETAIL = 100024;  //保存弟子详细信息
+	CMD_SAVE_ROLE_BRIEF = 100025;   //保存弟子简要信息(等级/经验/...)
+}
+
+enum LoginType {
+	GUEST_LOGIN = 0; //游客登录
+}
+
+enum Sex {
+	SEX_UNKNOWN = 0;
+	SEX_MAN = 1;
+	SEX_WOMAN = 2;
+}
+
+enum Result {
+	RESULT_SUCCESS = 0;
+	RESULT_FAIL = 1;
+	RESULT_ANOTHER_LOGIN = 100; //同一帐号异地登录
+}
+
+enum ReasonId {
+	SOURCE_UNKNOWN = 0;
+	SOURCE_FIGHT_PVE = 1;        //PVE战斗产出
+	SOURCE_FIGHT_PVP = 2;        //PVP战斗产出
+}
+
+enum BuildingId {
+	BUILDING_UNKNOWN = 0;
+	BUILDING_GJG = 1;          //庚金谷
+	BUILDING_YY = 2;           //药园
+	BUILDING_LDF = 3;          //炼丹房
+	BUILDING_LQF = 4;          //炼器房
+	BUILDING_MAIN_HALL = 5;    //正殿
+	BUILDING_DEPUTY_HALL = 6;  //副殿
+	BUILDING_PARTIAL_HALL = 7; //偏殿
+	BUILDING_RECRUIT_HALL = 8; //招募建筑
+	BUILDING_JVLING_HALL = 9;  //聚灵阵
+	BUILDING_HUSHAN_HALL = 10; //护山大阵
+	BUILDING_GOING_HALL = 11;  //出发建筑
+	BUILDING_STORE_HOUSE = 12; //出发建筑
+	BUILDING_JZH = 13;         //出发建筑
+}
+
+message Packet {
+	Command command = 1;
+	int32 result = 2; //上行和主动下行时不设置，被动下行时设置
+	string error = 3; //被动下行且result不为RESULT_SUCCESS时设置，否则不设置
+	bytes body = 4;   //根据command对应具体结构
+}
+
+//用户信息
+message UserInfo {
+	int32 uid = 1;            //用户ID
+	string nickname = 2;      //昵称
+	string avatar = 3;        //头像
+	Sex sex = 4;              //性别
+	int32 rmb = 5;            //钻石
+	int32 gold = 6;           //金币
+	int32 heartbeat_time = 7; //心跳时间戳(秒)
+	int32 offline_time = 8;   //离线时间戳(秒)
+}
+
+//心跳，CMD_HEARTBEAT
+//客户端每30秒发送一次
+//服务端原包返回
+//上行body：
+message ReqHeartbeat {
+	int32 timestamp = 1; //时间戳(秒)
+}
+//下行body：同上
+
+//登录，CMD_LOGIN
+//上行body：
+message ReqLogin {
+	LoginType login_type = 1; //登录类型
+	string third_id = 2;	  //third_id(游客随机码,token等)
+	int32 channel = 3;        //渠道号
+	int32 sub_channel = 4;    //子渠道号
+	string version = 5;       //客户端游戏版本
+}
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：
+message AckLogin {
+	LoginType login_type = 1; //登录类型
+	int32 timestamp = 2;      //时间戳(秒)
+	string token = 3;         //TOKEN
+	UserInfo user_info = 4;   //用户信息
+}
+
+//登出，CMD_LOGIN_OUT
+//上行body：无
+//下行result：
+//RESULT_SUCCESS
+//下行body：无
+
+//服务器通知客户端被踢，CMD_KICK_OFF
+//下行result：
+//RESULT_ANOTHER_LOGON
+//RESULT_FAIL
+//下行error：描述被踢原因
+//下行body：无
+
+//作弊报告，CMD_CHEAT_REPORT
+//上行body：
+message CheatReport {
+	int32 type = 1;  //作弊类型
+	string memo = 2; //作弊信息
+}
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：无
+
+message PropInfo {
+	int32 prop_id = 1;   //道具id(0表示新增)
+	int32 item_id = 2;   //材料id
+	int32 quantity = 3;  //数量(小于0表示删除)
+	string attrib = 4;   //属性(json)
+}
+
+//获取道具，CMD_GET_PROP
+//上行body：无
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：
+message AckGetProp {
+	repeated PropInfo props = 1; //道具列表
+}
+
+//保存道具，CMD_SAVE_PROP
+//上行body：
+message ReqSaveProp {
+	repeated PropInfo props = 1; //道具列表
+}
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：
+message AckSaveProp {
+	repeated int32 prop_ids = 1; //道具id列表(与请求中的道具列表对应)
+}
+
+//生产线
+message ProductLine {
+	int32 pid = 1;   //生产线id
+	int32 lv = 2;    //等级
+	int32 power = 3; //生产力
+}
+
+//获取庚金谷，CMD_GET_GJG
+//获取药园，  CMD_GET_YY
+//上行body：无
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：
+message BuildingProductInfo {
+	int32 lv = 1;                           //等级
+	int32 last_product_time = 2;            //最后生产时间(时间戳:秒)
+	repeated ProductLine product_lines = 3; //生产线列表
+}
+
+//保存庚金谷，CMD_SAVE_GJG
+//保存药园，  CMD_SAVE_YY
+//上行body：BuildingProductInfo
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：无
+
+
+//获取炼丹房，CMD_GET_LDF
+//获取炼器房，CMD_GET_LQF
+//上行body：无
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：
+message BuildingCommonInfo {
+	int32 lv = 1;       //等级
+	string ex_info = 2; //扩展信息(json)
+}
+//保存炼丹房，CMD_SAVE_LDF
+//保存炼器房，CMD_SAVE_LQF
+//上行body：BuildingCommonInfo
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：无
+
+message RoleBrief {
+	int32 dizi_id = 1; //弟子id
+	int32 lv = 3;      //等级(小于0表示删除)
+	int32 exp = 4;     //经验
+}
+
+message RoleDetail {
+	int32 dizi_id = 1; //弟子id
+	int32 role_id = 2; //角色id
+	int32 lv = 3;      //等级(小于0表示删除)
+	int32 exp = 4;     //经验
+	string attrib = 5; //属性(json)
+}
+
+//获取弟子，CMD_GET_ROLE
+//上行body：无
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：
+message AckGetRole {
+	repeated RoleDetail roles = 1; //弟子列表
+}
+
+//保存弟子详细信息，CMD_SAVE_ROLE_DETAIL
+//上行body：
+message ReqSaveRoleDetail {
+	repeated RoleDetail roles = 1; //弟子列表
+}
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：无
+message AckSaveRoleDetail {
+	repeated int32 dizi_ids = 1; //弟子id列表(与请求中的弟子列表对应)
+}
+
+//保存弟子简要信息(等级/经验/...)，CMD_SAVE_ROLE_BRIEF
+//上行body：
+message ReqSaveRoleBrief {
+	repeated RoleBrief roles = 1; //弟子列表
+}
+//下行result：
+//RESULT_SUCCESS
+//RESULT_FAIL
+//下行body：无

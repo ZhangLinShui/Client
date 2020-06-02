@@ -1,4 +1,6 @@
-﻿using Plates.Client.Net;
+﻿using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using Plates.Client.Net;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -19,11 +21,12 @@ namespace Client
                 if (InputKey == ConsoleKey.Spacebar)
                 {
                     List<Task> t = new List<Task>();
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 1; i++)
                     {
                         SocketManager socketManager = new SocketManager("127.0.0.1", 11000);
                         socketManager.Connect();
-                        t.Add(Task.Factory.StartNew(() =>{
+                        t.Add(Task.Factory.StartNew(() =>
+                        {
                             AddProducts(socketManager);
                         }));
                     }
@@ -32,11 +35,30 @@ namespace Client
                 }
             }
         }
-        static string message = @"Hello World!";
+        static string message = "H";
         static void AddProducts(SocketManager socketManager)
         {
-            byte[] send = System.Text.Encoding.UTF8.GetBytes(message);
-            socketManager.Send(send);
+            Person person = new Person()
+            {
+                Aliases = string.Empty,
+                BodyLength = 10,
+
+            };
+            Random ran = new Random();
+            
+            for (int i = 0; i < 10; i++)
+            {
+                int RandKey = ran.Next(100, 1026);
+                for (int j = 0; j < RandKey; j++)
+                {
+                    person.Aliases += "1";
+                }
+                person.BodyLength = RandKey;
+                
+                byte[] send = System.Text.Encoding.UTF8.GetBytes(message);
+                person.Body = ByteString.CopyFrom(send);
+                socketManager.Send(person);
+            }
         }
         static void AddProducts1()
         {

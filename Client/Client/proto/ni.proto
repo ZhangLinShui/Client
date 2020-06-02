@@ -1,0 +1,13 @@
+syntax ="proto3";
+option csharp_namespace = "Google.Protobuf.WellKnownTypes";
+message Person {
+    // Other fields elided
+     string aliases = 8;
+	bytes body = 4;
+	int32 bodyLength = 5;
+}
+
+//需要单独写方法获取包体长度  (利用protobuf内部的方法internal uint ReadRawVarint32() 将其成功重载为public uint ReadRawVarint32(ref int offset)即可)
+//需要计算包体长度这个值在数组里面占几个字节
+//判断接收到的数组长度是否足够反序列化出包体长度   不够继续接受数据
+//包体长度足够 判断接收到的数组是否足够反序列一条完整的消息  不够继续接受消息
