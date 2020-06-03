@@ -148,7 +148,7 @@ namespace Plates.Client.Net
 
         void IO_Completed(object sender, SocketAsyncEventArgs e)
         {
-            MySocketEventArgs mys = (MySocketEventArgs)e;
+            //MySocketEventArgs mys = (MySocketEventArgs)e;
             // determine which type of operation just completed and call the associated handler  
             switch (e.LastOperation)
             {
@@ -156,7 +156,7 @@ namespace Plates.Client.Net
                     ProcessReceive(e);
                     break;
                 case SocketAsyncOperation.Send:
-                    mys.IsUsing = false; //数据发送已完成.状态设为False  
+                    //mys.IsUsing = false; //数据发送已完成.状态设为False  
                     ProcessSend(e);
                     break;
                 default:
@@ -233,9 +233,14 @@ namespace Plates.Client.Net
         // data sent from the client  
         //  
         // <param name="e"></param>  
+        public int m_numConnectedSockets=0;      // the total number of clients connected to the server连接到服务器的客户端总数
         private void ProcessSend(SocketAsyncEventArgs e)
         {
-            Console.WriteLine("关闭连接");
+            MySocketEventArgs mys = (MySocketEventArgs)e;
+            mys.IsUsing = false; //数据发送已完成.状态设为False  
+            Interlocked.Increment(ref m_numConnectedSockets);
+            Console.WriteLine("客户端当前线程ID：" + Thread.CurrentThread.ManagedThreadId.ToString()+"已发送："+ m_numConnectedSockets);
+            //Console.WriteLine("发送结束");
             if (e.SocketError != SocketError.Success)
             {
                 ProcessError(e);
@@ -317,10 +322,10 @@ namespace Plates.Client.Net
                 //Console.WriteLine(person.Aliases);
                 #endregion
             }
-            //else
-            //{
-            //    throw new SocketException((Int32)SocketError.NotConnected);
-            //}
+            else
+            {
+                throw new SocketException((Int32)SocketError.NotConnected);
+            }
         }
 
         /// <summary>  

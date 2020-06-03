@@ -8,3 +8,4 @@ D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\x64\Debug\netcoreapp2.1\C
 D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\x64\Debug\netcoreapp2.1\Client.AssemblyInfo.cs
 D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\x64\Debug\netcoreapp2.1\Client.dll
 D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\x64\Debug\netcoreapp2.1\Client.pdb
+D:\ZhaoRuiBin\work\git\github\Client\Client\Client\obj\x64\Debug\netcoreapp2.1\Client.csprojAssemblyReference.cache
